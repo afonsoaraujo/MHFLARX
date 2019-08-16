@@ -1,0 +1,3 @@
+posto 284 - alpha1 = 0.87, alpha2 = 0.64
+posto 173 - alpha1 = 0.98, alpha2 = 0.97
+posto 18  - alpha1 = 0.98, alpha2 = 0.97

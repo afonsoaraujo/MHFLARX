@@ -1,0 +1,19 @@
+Para rodar o código rapidamente no vscode baixe a extensão CodeRunner: https://marketplace.visualstudio.com/items?itemName=formulahendry.code-runner
+Essa extensão combila e excecuta códigos em diferentes linguagens, facilita bastante
+
+Ainda não consegui fazer diretórios automáticos
+Então no momento o que eu estou fazendo com os diretórios /lib e /dados:
+	Para o /lib
+	Estou definindo variaveis que armazenam esses diretórios;
+	diretorio1 é da workstation que eu uso no meu login
+	diretorio2 é o que eu uso no meu notebook
+	diretorio3 não está definido, caso queria acrescentar um diretorio para as libs é sé digitar o diretorio no campo diretorio3 no arquivo /src/rotinas.py na linha 7
+	
+	Para o /dados:
+	É necessario fazer o mesmo com os diretorios no arquivo /lib/leituraArq.py na linha 45. Entretanto, voce precisa alterar o indice também do diretorio na linha 51 do arquivo /lib/leituraArq.py onde ocorre a leitura do arquivo.
+	Caso queira alterar o arquivo a ser lido, altere o nome do arquivo.csv na linha 46 do arquivo /lib/leituraArq.py
+
+
+O resto do código está documentado a princípio, exceto o rotinas.py que ainda está sendo editado constantemente.
+
+

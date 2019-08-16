@@ -1,0 +1,191 @@
+Natural,Artificial,Posto,Parâmetro Filtro (dias),Parâmetro Filtro (Var. Mínima)
+1,,Camargos ,3,250
+2,,Itutinga ,N/A,N/A
+6,,Furnas ,5,1600
+7,,Mascarenhas de Moraes ,N/A,N/A
+8,,Estreito ,N/A,N/A
+9,,Jaguara ,N/A,N/A
+10,,Igarapava ,N/A,N/A
+11,,Volta Grande ,N/A,N/A
+12,,Porto Colômbia ,5,950
+14,,Caconde ,N/A,N/A
+15,,Euclides da Cunha ,N/A,N/A
+16,,Limoeiro ,N/A,N/A
+17,,Marimbondo ,5,1000
+18,,Água Vermelha ,5,900
+22,,Batalha ,1,N/A
+23,,Corumbá III ,3,400
+24,,Emborcação ,5,1200
+25,,Nova Ponte ,5,600
+28,,Capim Branco 2 ,N/A,N/A
+31,,Itumbiara ,5,1000
+32,,Cachoeira Dourada ,N/A,N/A
+33,,São Simão ,4,N/A
+34,,Ilha Solteira ,N/A,N/A
+37,,Barra Bonita ,3,800
+38,,Bariri ,N/A,N/A
+39,,Ibitinga ,4,600
+40,,Promissão ,N/A,N/A
+42,,Nova Avanhandava ,N/A,N/A
+43,,Três Irmãos ,N/A,N/A
+44,,Ilha Solteira Equivalente ,N/A,N/A
+45,,Jupiá ,7,N/A
+46,,Porto Primavera ,7,N/A
+47,,Jurumirim ,3,450
+48,,Piraju ,N/A,N/A
+49,,Chavantes ,4,300
+50,,Lucas Nogueira Garcez ,N/A,N/A
+51,,Canoas 2 ,N/A,N/A
+52,,Canoas 1 ,3,300
+54,,Santa Branca do Tibaji ,N/A,N/A
+57,,Mauá ,3,400
+61,,Capivara ,45,1000
+62,,Taquaruçu ,N/A,N/A
+63,,Rosana ,6,500
+66,,Itaipu ,3,4500
+70,,Jordão ,3,750
+71,,Santa Clara PR ,3,100
+72,,Fundão ,N/A,N/A
+73,,Jordão ,3,750
+74,,Foz do Areia ,3,600
+75,,Segredo ,3,750
+76,,Segredo ,3,750
+77,,Salto Santiago ,N/A,N/A
+78,,Salto Osório ,N/A,N/A
+81,,Baixo Iguaçu ,N/A,N/A
+89,,Garibaldi ,N/A,N/A
+92,,Itá ,3,300
+93,,Passo Fundo ,3,50
+94,,Foz Chapecó ,3,800
+97,,Monte Claro ,3,200
+98,,Castro Alves ,1,N/A
+99,,Espora ,3,150
+101,,Salto Pilão ,1,N/A
+102,,São José ,N/A,N/A
+103,,Passo São João ,N/A,N/A
+104,,Traição ,N/A,N/A
+109,,Pedreira ,N/A,N/A
+110,,Ernestina ,3,25
+111,,Passo Real ,3,290
+112,,Jacuí ,N/A,N/A
+113,,Itaúba ,N/A,N/A
+114,,Dona Francisca ,3,50
+115,,Capivari Cachoeira ,3,25
+116,,Pedras ,N/A,N/A
+117,,Guarapiranga ,5,40
+118,,Billings ,N/A,N/A
+119,,Billings + Pedras ,5,80
+120,,Jaguari ,4,45
+121,,Paraibuna ,5,120
+122,,Santa Branca ,N/A,N/A
+123,,Funil ,3,130
+125,,Santa Cecília ,3,140
+126,,Simplício ,N/A,N/A
+127,,Anta ,N/A,N/A
+129,,Anta ,N/A,N/A
+130,,Ilha dos Pombos ,3,250
+131,,Nilo Peçanha ,N/A,N/A
+132,,Lajes ,3,30
+134,,Salto Grande ,2,100
+141,,Baguari ,N/A,N/A
+144,,Mascarenhas ,N/A,N/A
+145,,Rondon 2 ,3,150
+148,,Aimorés ,N/A,N/A
+149,,Candonga ,4,120
+155,,Retiro Baixo ,3,150
+156,,Três Marias ,5,1300
+158,,Queimado ,3,90
+160,,Ponte Nova / Alto Tietê ,N/A,N/A
+161,,Edgard de Souza (c/ tributários) ,1,N/A
+164,,Edgard de Souza (s/ tributários) ,1,N/A
+168,,Sobradinho Incremental ,N/A,N/A
+169,,Sobradinho ,N/A,N/A
+171,,Itaparica incremental ,N/A,N/A
+172,,Itaparica ,N/A,N/A
+173,,Moxotó ,N/A,N/A
+175,,Paulo Afonso ,N/A,N/A
+176,,Complexo Paulo Afonso-Moxotó ,N/A,N/A
+178,,Xingó ,N/A,N/A
+183,,Antônio Dias +Sá Carvalho ,N/A,N/A
+188,,Itapebi ,N/A,N/A
+190,,Boa Esperança ,3,800
+191,,Cana Brava ,N/A,N/A
+196,,Rosal ,N/A,N/A
+197,,Picada ,2,35
+198,,Sobragi ,3,60
+201,,Tocos ,3,30
+202,,Lajes ,3,30
+203,,Santana ,N/A,N/A
+204,,Cachoeira Caldeirão ,N/A,N/A
+205,,Corumbá IV ,5,300
+206,,Miranda ,N/A,N/A
+207,,Capim Branco 1 ,N/A,N/A
+209,,Corumbá I ,3,400
+211,,Funil-MG ,N/A,N/A
+215,,Barra Grande ,3,100
+216,,Campos Novos ,3,100
+217,,Machadinho ,3,100
+220,,Monjolinho ,3,70
+222,,Salto Caxias ,3,750
+227,,Sinop ,N/A,N/A
+228,,Colider ,N/A,N/A
+229,,Teles Pires,N/A,N/A
+230,, São Manoel ,N/A,N/A
+237,,Barra Bonita ,3,800
+238,,Bariri ,N/A,N/A
+239,,Ibitinga ,4,600
+240,,Promissão ,N/A,N/A
+241,,Salto do Rio Verdinho ,5,300
+242,,Nova Avanhandava ,N/A,N/A
+243,,Três Irmãos ,N/A,N/A
+244,,Ilha Solteira Equivalente ,N/A,N/A
+245,,Jupiá ,7,N/A
+246,,Porto Primavera ,7,N/A
+247,,Caçu ,3,400
+248,,Barra dos Coqueiros ,3,400
+249,,Ourinhos ,N/A,N/A
+251,,Serra do Facão ,3,330
+253,,São Salvador ,N/A,N/A
+254,,Pedra do Cavalo ,5,80
+255,,Irapé ,4,180
+257,,Peixe Angical ,N/A,N/A
+259,,Itiquira I e II ,3,100
+261,,Foz do Rio Claro ,3,400
+262,,Guilman-Amorin ,2,50
+263,,Porto Estrela ,N/A,N/A
+266,,Itaipu ,3,4500
+269,,Balbina ,N/A,N/A
+270,,Serra da Mesa ,5,1500
+271,,Estreito Tocantins ,N/A,N/A
+273,,Lajeado ,5,4000
+275,,Tucuruí ,N/A,N/A
+277,,Curuá-Una ,3,N/A
+278,,Manso ,5,400
+279,,Samuel ,5,1000
+280,,Coaracy Nunes ,N/A,N/A
+281,,Ponte de Pedra ,3,120
+283,,Santa Clara MG ,N/A,N/A
+284,,14 de Julho ,3,200
+285,,Jirau ,N/A,N/A
+286,,Quebra Queixo ,3,40
+287,,Santo Antônio ,N/A,N/A
+288,,Pimental ,N/A,N/A
+290,,Santo Antônio do Jari ,N/A,N/A
+291,,Dardanelos ,N/A,N/A
+292,,Belo Monte Principal ,N/A,N/A
+294,,Salto ,5,300
+295,,Jauru ,3,120
+296,,Guaporé ,3,50
+297,,Ferreira Gomes ,N/A,N/A
+298,,Santa Cecília Bombeamento ,N/A,N/A
+299,,Ilha dos Pombos ,3,250
+300,,Posto Nulo ,N/A,N/A
+302,,Belo Monte Complementar ,N/A,N/A
+303,,Fontes ,N/A,N/A
+304,,Santana Vertimento ,N/A,N/A
+306,,Pereira Passos ,N/A,N/A
+315,,Santana ,N/A,N/A
+316,,Vigário ,N/A,N/A
+317,,Tocos Vertimento ,N/A,N/A
+318,,Henry Borden ,N/A,N/A
+319,,Billings ,N/A,N/A
