@@ -31,8 +31,7 @@ sys.path.append(diretorioLib5)
 
 
 ''' Importação de bibliotecas utilizadas '''
-from getData import*
-from leituraArq import*
+from lib import*
 from matplotlib import pyplot as plt
 from scipy import stats
 import numpy as np
@@ -230,6 +229,6 @@ for q in range(qtd_graph):
             matrizRecessao.append(vetorRecVazao)    # Adiciona a vazão da recessão ao vetor geral de recessão
 
             ''' Plot dos dados obtidos '''
-            #plt.figure(q)
-            #plotRecTotal(q*2)
+            plt.figure(q)
+            plotRecTotal(q*2)
 plt.show()

@@ -17,8 +17,7 @@ sys.path.append(diretorioLib5)
 
 import csv
 import numpy as np
-from getData import*
-from leituraArq import*
+from lib import*
 from matplotlib import pyplot as plt
 
 
