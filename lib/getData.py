@@ -38,7 +38,60 @@ class Data:
         else:
             self.bissexto = False
             return self.bissexto
-        
+
+    def diasMes(self, mes):
+        self.anoBissexto()
+        if(self.anoBissexto == True):
+            if(mes == 1):
+                return self.diasB[0]
+            if(mes == 2):
+                return self.diasB[1]
+            if(mes == 3):
+                return self.diasB[2]
+            if(mes == 4):
+                return self.diasB[3]
+            if(mes == 5):
+                return self.diasB[4]
+            if(mes == 6):
+                return self.diasB[5]
+            if(mes == 7):
+                return self.diasB[6]
+            if(mes == 8):
+                return self.diasB[7]
+            if(mes == 9):
+                return self.diasB[8]
+            if(mes == 10):
+                return self.diasB[9]
+            if(mes == 11):
+                return self.diasB[10]
+            if(mes == 12):
+                return self.diasB[11]
+        else:
+            if(mes == 1):
+                return self.dias[0]
+            if(mes == 2):
+                return self.dias[1]
+            if(mes == 3):
+                return self.dias[2]
+            if(mes == 4):
+                return self.dias[3]
+            if(mes == 5):
+                return self.dias[4]
+            if(mes == 6):
+                return self.dias[5]
+            if(mes == 7):
+                return self.dias[6]
+            if(mes == 8):
+                return self.dias[7]
+            if(mes == 9):
+                return self.dias[8]
+            if(mes == 10):
+                return self.dias[9]
+            if(mes == 11):
+                return self.dias[10]
+            if(mes == 12):
+                return self.dias[11]
+
     def diasAno(self):
         self.anoBissexto()
         if(self.bissexto == True):

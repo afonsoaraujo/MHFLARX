@@ -25,7 +25,7 @@ class dadosArq:
         vazoesDia(self) --> função que retorna uma lista de dias e vazões somente do ano escolhido para utilização em recessões ou outros afins
     '''
     
-    def __init__(self, ano, posto, qtd_graph, dados):
+    def __init__(self, ano, posto, qtd_graph, dados, listaPosto):
 
         self.ano_usuario   = int(ano)
         self.posto_usuario = str(posto)
@@ -35,7 +35,21 @@ class dadosArq:
         self.dados         = dados
         self.listaPosto    = listaPosto
 
-    def vazoesDia(self): 
+    def findPosto(self): 
+        self.indice_posto = self.listaPosto.index(self.posto_usuario) + 1   # indice_posto é a variável que indica qual o indice que se encontra o posto o qual o usuário está pesquisando
+
+    def vazoesDia_CEPEL(self):
+        # Chama a função self.findPosto()
+        self.findPosto()      
+        for i in range(self.dados.__len__()):                       
+            data_arq  = self.dados[i][0]    # data_arq é a variável que armazena todas as datas existentes no arquivo no formato string              
+            data      = Data(data_arq)  # Instanciação do objeto Data
+            if (data.ano == int(self.ano_usuario)):
+                vazao = self.dados[i][self.indice_posto]    # vazao é a variável que armazena todas as vazões no periodo escolhido
+                self.listaData = data.diasAno()
+                self.listaVazao.append(float(vazao))
+
+    def vazoesDia_ANA(self): 
         for i in range(self.dados.__len__()):                       
             data_arq  = self.dados[i][2]    # data_arq é a variável que armazena todas as datas existentes no arquivo no formato string     
             data      = Data(data_arq)  # Instanciação do objeto Data

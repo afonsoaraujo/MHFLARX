@@ -32,7 +32,7 @@ sys.path.append(diretorioLib5)
 
 ''' Importação de bibliotecas utilizadas '''
 from getData import*
-from leituraArq_CEPEL import*
+from leituraArq import*
 from matplotlib import pyplot as plt
 from scipy import stats
 import numpy as np
@@ -207,7 +207,7 @@ for q in range(qtd_graph):
 
     ''' Instanciação de objetos '''
     dados = dadosArq(ano_usuario + q, posto_usuario, qtd_graph, database, lista_posto)
-    dados.vazoesDia()
+    dados.vazoesDia_CEPEL()
 
     ''' Parametros do filtro '''
     for i in range(len(parametros)):
@@ -232,5 +232,4 @@ for q in range(qtd_graph):
             ''' Plot dos dados obtidos '''
             #plt.figure(q)
             #plotRecTotal(q*2)
-            #dados.graphPlot(nomePosto)
 plt.show()

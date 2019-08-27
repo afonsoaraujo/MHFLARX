@@ -17,14 +17,14 @@ sys.path.append(diretorioLib5)
 
 import csv
 import numpy as np
-from getData_ANA import*
-from leituraArq_ANA import*
+from getData import*
+from leituraArq import*
 from matplotlib import pyplot as plt
 
 
 ''' Definição de variáveis que serão utilizadas para instanciar objeto leituraArq '''
 ano_usuario     = 1946  # Definição do ano que o usuário quer plotar
-qtd_graph       = 44     # Define a quantidade de graficos que o usuário quer comparar
+qtd_graph       = 1     # Define a quantidade de graficos que o usuário quer comparar
 
 matrizRecessao  = []    # Matriz com os vetores de recessão do ano escolhido
 vetorRecDias    = []    # Lista com o vetor de dias para recessão, para todos os n anos agrupados
@@ -164,8 +164,8 @@ def plotRecTotal(indGraph):
     #plt.show()
 
 for q in range(qtd_graph):
-    dados = dadosArq(ano_usuario + q, qtd_graph, database)
-    dados.vazoesDia()
+    dados = dadosArq(ano_usuario + q, 0 , qtd_graph, database, [])
+    dados.vazoesDia_ANA()
 
     ''' Parametros do filtro '''
     tiRec     = 2     # tempo mínimo para inicio de uma recessão (DEPENDE DE UMA DETERMINADA BACIA)
@@ -182,6 +182,6 @@ for q in range(qtd_graph):
     filtroRec(tiRec, varVazao)    # Chama a função que filtra os dados da vazao anual
     matrizRecessao.append(vetorRecDias)   # Adiciona os dias de recessão ao vetor geral de recessão
     matrizRecessao.append(vetorRecVazao)    # Adiciona a vazão da recessão ao vetor geral de recessão
-    #plotRecTotal(q*2)
-    #plt.plot(dados.listaVazao)
+    plotRecTotal(q*2)
+    plt.plot(dados.listaVazao)
 plt.show()
