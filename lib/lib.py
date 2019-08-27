@@ -2,6 +2,10 @@
 
 import numpy as np                   # Biblioteca padrão (Python 3.X), baixada (Python 2.X)
 from matplotlib import pyplot as plt # Biblioteca baixada (matplotlib)
+from scipy import stats
+import numpy as np
+import csv
+import statsmodels.api as sm
 
 class Data:
     
@@ -19,6 +23,7 @@ class Data:
     Métodos:
         __init__(self, data) --> função de instanciação do objeto data, necessita da string no formato correto.
         anoBissexto(self) --> função que retorna se o ano é bissexto ou não
+        diasMes(self, mes) --> função que retorna o numero de dias do mes indicado
         diasAno(self) --> função que retorna uma lista com os dias do ano em análise
     
     '''
@@ -138,13 +143,13 @@ class dadosArq:
         posto_usuario   --> é a definição da uma string para o posto de análise escolhido
         qtd_graph       --> é a definição de um inteiro para a quantidade de gráficos(anos) subsequentes que serão plotados
         dados           --> é uma matriz contendo uma lista de vazão e datas do período escolhido para análise de recessões
+        listaPosto      --> é uma lista contendo todos os postos a serem analisados, é um input de dados
 
     Métodos:
-        __init__(self, ano, posto, qtd_graph) --> função de instanciação do objeto dadosArq, as informações tem que ser passadas na ordem correta
-        lerArquivo(self) --> função que lê o arquivo
-        graphPlotPlus(self) --> função que plota o(os) gráfico(os) de acordo com self.ano_usuario e self.qtd_graph
-        graphPlot(self) --> função que plota somente o dado do ano escolhido
-        vazoesDia(self) --> função que retorna uma lista de dias e vazões somente do ano escolhido para utilização em recessões ou outros afins
+        __init__(self, ano, posto, qtd_graph, dados, listaPosto) --> função de instanciação do objeto dadosArq, as informações tem que ser passadas na ordem correta
+        findPosto(self) --> função que encontra o posto escolhido na lista de postos geral
+        vazoesDia_CEPEL(self) --> função que faz a leitura dos dados do CEPEL
+        vazoesDia_ANA(self) --> função que faz a leitura dos dados do ANA
     '''
     
     def __init__(self, ano, posto, qtd_graph, dados, listaPosto):
@@ -200,3 +205,344 @@ class dadosArq:
                         a = 365 - len(self.listaVazao)
                         for k in range(a):
                             self.listaVazao.append(0)
+
+class analiseRec_CEPEL:
+    '''
+    A classe analiseRec_CEPEL tem função de realizar a analise de recessão do posto escolhido com base no banco de dados do CEPEL
+
+    Esté código tem função de analisar as recessões de no posto escolhido pelo usuario durante o tempo escolhido e retornar
+    esses dados numa matriz de n recessões em n anos.
+
+    Para que o código funcione é preciso 2 arquivos:
+        VazoesDiarias.csv
+            Arquivo do Cepel contendo as vazões, em escala diária, das bacias hidrográficas desde 1932.
+    
+        Postos e parametros.csv
+            Arquivo contendo o nome dos postos e parametros que auxiliam a filtragem (tiRec, varVazao).
+
+    Atributos:
+        input_ano        --> input do ano escolhido
+        input_posto      --> input do posto escolhido
+        input_deltaT     --> input da quantidade de anos observada
+        input_database   --> input de uma matriz contendo todos os dados utilizaveis do arquivo principal
+        input_postos     --> input de uma lista contendo todos os postos a serem analisados
+        input_parametros --> input de uma matriz contendo todos os dados utilizaveis do arquivo de parametros
+
+    Métodos:
+        __init__(self, ano, posto, deltaT, database, listaP, parametros) --> função de instanciação do objeto dadosArq, as informações tem que ser passadas na ordem correta
+        filtroRec(self, tiRec, varVazao) --> função que faz o primeiro filtro de recessões
+        plotRecTotal(self, indGraph) --> função que plota a recessão
+        analise(self) --> função que faz a analise em conjunto com as funções anteriores
+
+    '''
+    matrizRecessao  = []    # Matriz com os vetores de recessão do ano escolhido
+    vetorRecDias    = []    # Lista com o vetor de dias para recessão, para todos os n anos agrupados
+    vetorRecVazao   = []    # Lista com o vetor de vazão para recessão, para todos os n anos agrupados
+    recVazao        = []    # lista com todas as recessões para o calculo de autocorrelação
+
+    def __init__(self, ano, posto, deltaT, database, listaP, parametros):
+        self.input_ano        = int(ano)
+        self.input_posto      = int(posto)
+        self.input_deltaT     = int(deltaT)
+        self.input_database   = database
+        self.input_postos     = listaP
+        self.input_parametros = parametros
+
+    def filtroRec(self, tiRec, varVazao):
+        d = 0
+        i = 0
+        j = 0
+        jmax = 5
+        if(self.tiRec == 'N/A'):
+            self.tiRec = 5
+        else:
+            self.tiRec = int(self.tiRec)
+        for d in range(len(self.dados.listaData)):
+            if (self.derivada[d] < 0 ):
+                if (i >= self.tiRec):
+                    try:
+                        if ( abs(self.dados.listaVazao[d + 1] - self.dados.listaVazao[d]) <= self.varVazao):
+                            if (j > jmax):
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                            else:
+                                if (self.derivada[d + self.tfRec - 2] < 0):
+                                    if (self.derivada[d + self.tfRec - 1] < 0):
+                                        if (self.derivada[d + self.tfRec] < 0):
+                                            self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                            self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                            self.recVazao.insert(d, self.dados.listaVazao[d])
+                                            i = i + 1
+                                else:
+                                    self.vetorRecDias.insert(d, 0)
+                                    self.vetorRecVazao.insert(d, 0)
+                                    i = 0
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                                j = j + 1
+                        else:
+                            j = 0
+                            if (self.derivada[d + self.tfRec - 2] < 0):
+                                if (self.derivada[d + self.tfRec - 1] < 0):
+                                    if (self.derivada[d + self.tfRec] < 0):
+                                        self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                        self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                        self.recVazao.insert(d, self.dados.listaVazao[d])
+                                        i = i + 1
+                            else:
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                i = 0
+                            if (d == int(self.dados.listaData[-1])):
+                                break
+                    except IndexError:
+                        if (abs(self.dados.listaVazao[-1] - self.dados.listaVazao[d]) <= self.varVazao):
+                            if (j > jmax):
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                            else:
+                                if (self.derivada[int(self.dados.listaData[-1]) - 3] < 0):
+                                    if (self.derivada[int(self.dados.listaData[-1]) - 2] < 0):
+                                        if (self.derivada[int(self.dados.listaData[-1]) - 1] < 0):
+                                            self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                            self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                            self.recVazao.insert(d, self.dados.listaVazao[d])
+                                            i = i + 1
+                                else:
+                                    self.vetorRecDias.insert(d, 0)
+                                    self.vetorRecVazao.insert(d, 0)
+                                    i = 0
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                                j = j + 1
+                        else:
+                            j = 0
+                            if (self.derivada[int(self.dados.listaData[-1]) - 3] < 0):
+                                if (self.derivada[int(self.dados.listaData[-1]) - 2] < 0):
+                                    if (self.derivada[int(self.dados.listaData[-1]) - 1] < 0):
+                                        self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                        self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                        self.recVazao.insert(d, self.dados.listaVazao[d])
+                                        i = i + 1
+                            else:
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                i = 0
+                            if (d == int(self.dados.listaData[-1])):
+                                break
+                else:
+                    i = i + 1
+                    self.vetorRecDias.insert(d,0)
+                    self.vetorRecVazao.insert(d,0)
+            else:
+                if (d == int(self.dados.listaData[-1])):
+                    break
+                else:
+                    try:
+                        if (len(self.recVazao) <= 4): 
+                            self.vetorRecDias.insert(d,0)
+                            self.vetorRecVazao.insert(d,0)
+                            i = 0
+                        else:
+                            self.vetorRecDias.insert(d,0)
+                            self.vetorRecVazao.insert(d,0)
+                            i = 0
+                    except ValueError:
+                        self.vetorRecDias.insert(d,0)
+                        self.vetorRecVazao.insert(d,0)
+                        i = 0
+    
+    def plotRecTotal(self, indGraph):
+        plt.plot(self.matrizRecessao[indGraph], self.matrizRecessao[indGraph + 1], 'o', ms = 2)
+        plt.title("Recessao")
+        plt.xlabel("Dias")
+        plt.ylabel("Vazão")
+        plt.show()
+    
+    def analise(self):
+        self.dados = dadosArq(self.input_ano, self.input_posto, self.input_deltaT, self.input_database, self.input_postos)
+        self.dados.vazoesDia_CEPEL()
+
+        for i in range(len(self.input_parametros)):
+            if (str(self.input_posto) == self.input_parametros[i][0]):
+                self.tiRec     = self.input_parametros[i][3] # tempo mínimo para inicio de uma recessão (DEPENDE DE UMA DETERMINADA BACIA)
+                self.tfRec     = 2     # tempo minimo anterior do fim de uma recessão (DEPENDE DE UMA DETERMINADA BACIA) [VALOR MÍNIMO: 2]
+                try:
+                    self.varVazao  = float(self.input_parametros[i][4])     # Variação minima de vazao entre recessão
+                except ValueError:
+                    self.varVazao  = 15    # Variação alterável
+                    print("A variavel varVazao não foi encontrada e está no valor default de: " + str(self.varVazao) + ".")
+                self.nomePosto = self.input_parametros[i][2]     # Nome do Posto
+                ''' Definição de variaveis e listas de rotinas '''
+                self.derivada        = []    # Lista da derivada da vazao do ano q
+                
+                ''' Funções principais '''
+                self.derivada = np.gradient(self.dados.listaVazao)    # Calcula a derivada da vazão
+                self.filtroRec(self.tiRec, self.varVazao)    # Chama a função que filtra os dados da vazao anual
+                self.matrizRecessao.append(self.vetorRecDias)   # Adiciona os dias de recessão ao vetor geral de recessão
+                self.matrizRecessao.append(self.vetorRecVazao)    # Adiciona a vazão da recessão ao vetor geral de recessão
+
+class analiseRec_ANA:
+    '''
+    A classe analiseRec_ANA tem função de realizar a analise de recessão do posto escolhido com base no banco de dados do ANA
+
+    Esté código tem função de analisar as recessões de no posto escolhido pelo usuario durante o tempo escolhido e retornar
+    esses dados numa matriz de n recessões em n anos.
+
+    Para que o código funcione é preciso 1 arquivo que segue o padrão de base de dados do ANA disponível em seu site
+
+    Atributos:
+        input_ano        --> input do ano escolhido
+        input_deltaT     --> input da quantidade de anos observada
+        input_database   --> input de uma matriz contendo todos os dados utilizaveis do arquivo principal
+       
+    Métodos:
+        __init__(self, ano, posto, deltaT, database, listaP, parametros) --> função de instanciação do objeto dadosArq, as informações tem que ser passadas na ordem correta
+        filtroRec(self, tiRec, varVazao) --> função que faz o primeiro filtro de recessões
+        plotRecTotal(self, indGraph) --> função que plota a recessão
+        analise(self) --> função que faz a analise em conjunto com as funções anteriores
+
+    '''
+    matrizRecessao  = []    # Matriz com os vetores de recessão do ano escolhido
+    vetorRecDias    = []    # Lista com o vetor de dias para recessão, para todos os n anos agrupados
+    vetorRecVazao   = []    # Lista com o vetor de vazão para recessão, para todos os n anos agrupados
+    recVazao        = []    # lista com todas as recessões para o calculo de autocorrelação
+
+    def __init__(self, ano, deltaT, database):
+        self.input_ano        = int(ano)
+        self.input_deltaT     = int(deltaT)
+        self.input_database   = database
+
+    def filtroRec(self, tiRec, varVazao):
+        d = 0
+        i = 0
+        j = 0
+        jmax = 5
+        if(self.tiRec == 'N/A'):
+            self.tiRec = 5
+        else:
+            self.tiRec = int(self.tiRec)
+        for d in range(len(self.dados.listaData)):
+            if (self.derivada[d] < 0 ):
+                if (i >= self.tiRec):
+                    try:
+                        if ( abs(self.dados.listaVazao[d + 1] - self.dados.listaVazao[d]) <= self.varVazao):
+                            if (j > jmax):
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                            else:
+                                if (self.derivada[d + self.tfRec - 2] < 0):
+                                    if (self.derivada[d + self.tfRec - 1] < 0):
+                                        if (self.derivada[d + self.tfRec] < 0):
+                                            self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                            self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                            self.recVazao.insert(d, self.dados.listaVazao[d])
+                                            i = i + 1
+                                else:
+                                    self.vetorRecDias.insert(d, 0)
+                                    self.vetorRecVazao.insert(d, 0)
+                                    i = 0
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                                j = j + 1
+                        else:
+                            j = 0
+                            if (self.derivada[d + self.tfRec - 2] < 0):
+                                if (self.derivada[d + self.tfRec - 1] < 0):
+                                    if (self.derivada[d + self.tfRec] < 0):
+                                        self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                        self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                        self.recVazao.insert(d, self.dados.listaVazao[d])
+                                        i = i + 1
+                            else:
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                i = 0
+                            if (d == int(self.dados.listaData[-1])):
+                                break
+                    except IndexError:
+                        if (abs(self.dados.listaVazao[-1] - self.dados.listaVazao[d]) <= self.varVazao):
+                            if (j > jmax):
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                            else:
+                                if (self.derivada[int(self.dados.listaData[-1]) - 3] < 0):
+                                    if (self.derivada[int(self.dados.listaData[-1]) - 2] < 0):
+                                        if (self.derivada[int(self.dados.listaData[-1]) - 1] < 0):
+                                            self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                            self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                            self.recVazao.insert(d, self.dados.listaVazao[d])
+                                            i = i + 1
+                                else:
+                                    self.vetorRecDias.insert(d, 0)
+                                    self.vetorRecVazao.insert(d, 0)
+                                    i = 0
+                                if (d == int(self.dados.listaData[-1])):
+                                    break
+                                j = j + 1
+                        else:
+                            j = 0
+                            if (self.derivada[int(self.dados.listaData[-1]) - 3] < 0):
+                                if (self.derivada[int(self.dados.listaData[-1]) - 2] < 0):
+                                    if (self.derivada[int(self.dados.listaData[-1]) - 1] < 0):
+                                        self.vetorRecDias.insert(d, self.dados.listaData[d])
+                                        self.vetorRecVazao.insert(d, self.dados.listaVazao[d])
+                                        self.recVazao.insert(d, self.dados.listaVazao[d])
+                                        i = i + 1
+                            else:
+                                self.vetorRecDias.insert(d, 0)
+                                self.vetorRecVazao.insert(d, 0)
+                                i = 0
+                            if (d == int(self.dados.listaData[-1])):
+                                break
+                else:
+                    i = i + 1
+                    self.vetorRecDias.insert(d,0)
+                    self.vetorRecVazao.insert(d,0)
+            else:
+                if (d == int(self.dados.listaData[-1])):
+                    break
+                else:
+                    try:
+                        if (len(self.recVazao) <= 4): 
+                            self.vetorRecDias.insert(d,0)
+                            self.vetorRecVazao.insert(d,0)
+                            i = 0
+                        else:
+                            self.vetorRecDias.insert(d,0)
+                            self.vetorRecVazao.insert(d,0)
+                            i = 0
+                    except ValueError:
+                        self.vetorRecDias.insert(d,0)
+                        self.vetorRecVazao.insert(d,0)
+                        i = 0
+    
+    def plotRecTotal(self, indGraph):
+        plt.plot(self.matrizRecessao[indGraph], self.matrizRecessao[indGraph + 1], 'o', ms = 2)
+        plt.title("Recessao")
+        plt.xlabel("Dias")
+        plt.ylabel("Vazão")
+    
+    def analise(self):
+        self.dados = dadosArq(self.input_ano, 0, self.input_deltaT, self.input_database, [])
+        self.dados.vazoesDia_ANA()
+
+        self.tiRec     = 2     # tempo mínimo para inicio de uma recessão (DEPENDE DE UMA DETERMINADA BACIA)
+        self.tfRec     = 4     # tempo minimo anterior do fim de uma recessão (DEPENDE DE UMA DETERMINADA BACIA) [VALOR MÍNIMO: 2]
+        self.varVazao  = 1     # Variação minima de vazao entre recessão
+        ''' Definição de variaveis e listas de rotinas '''
+        self.derivada        = []    # Lista da derivada da vazao do ano q
+                
+        ''' Funções principais '''
+        self.derivada = np.gradient(self.dados.listaVazao)    # Calcula a derivada da vazão
+        self.filtroRec(self.tiRec, self.varVazao)    # Chama a função que filtra os dados da vazao anual
+        self.matrizRecessao.append(self.vetorRecDias)   # Adiciona os dias de recessão ao vetor geral de recessão
+        self.matrizRecessao.append(self.vetorRecVazao)    # Adiciona a vazão da recessão ao vetor geral de recessão
