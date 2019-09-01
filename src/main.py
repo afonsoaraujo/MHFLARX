@@ -12,9 +12,9 @@ nomeArq         = "vazoes_SC_65370000.csv"
 ArqParametros   = "Postos e parametros.csv"
 diretorioDados  = "C:/Users/lucas/OneDrive/MHFLARX/dados/"
 
+# Definições de variáveis de armazenamento de dados globais
 lista_posto     = []    # Lista com o numero dos postos
 nomes_posto     = []    # Lista com o nome dos postos
-
 
 
 ''' Leitura do arquivo '''
@@ -39,7 +39,13 @@ except FileNotFoundError:
 ana = analiseRec_ANA(1946, 1, database)
 ana.analise()
 
-plt.figure()
+plt.figure(1)
 ana.plotRecTotal(0)
 plt.plot(ana.dados.listaVazao)
+
+plt.figure(2)
+filtro = filtroAR_ANA(1946, 1, database)
+print(len(filtro.yn))
+#filtro.filtroAR1()
+
 plt.show()

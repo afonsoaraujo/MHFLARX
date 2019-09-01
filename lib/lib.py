@@ -190,6 +190,8 @@ class dadosArq:
                         self.listaVazao.append(x)
                     else:
                         self.listaVazao.append(float(x))
+                        print(j)
+                        print(len(self.listaVazao))
         for j in range(self.dados.__len__()): 
             data_arq2  = self.dados[j][2]
             data2      = Data(data_arq2)  # Instanciação do objeto Data
@@ -361,7 +363,6 @@ class analiseRec_CEPEL:
         plt.title("Recessao")
         plt.xlabel("Dias")
         plt.ylabel("Vazão")
-        plt.show()
     
     def analise(self):
         self.dados = dadosArq(self.input_ano, self.input_posto, self.input_deltaT, self.input_database, self.input_postos)
@@ -546,3 +547,250 @@ class analiseRec_ANA:
         self.filtroRec(self.tiRec, self.varVazao)    # Chama a função que filtra os dados da vazao anual
         self.matrizRecessao.append(self.vetorRecDias)   # Adiciona os dias de recessão ao vetor geral de recessão
         self.matrizRecessao.append(self.vetorRecVazao)    # Adiciona a vazão da recessão ao vetor geral de recessão
+
+class AjusteLinear:
+    '''
+    A classe ajusteLinear - Realiza o Ajuste Linear - escrito por Lucas Ribeiro Magalhães - UFRJ
+
+    Esse código tem como saida o ajuste linear das recessões previamente analisadas no arquivo analiseRec.py
+    O ajuste é nas vazões q(t) x q(t+1)
+
+    O ajuste é feito e em seguida é retornado as constantes K do filtro auto regressivo
+
+    O código também faz a separação de constantes por meio da função ginput() e refaz o ajuste linear
+    '''
+    Ks = []         # lista com as constantes de cada regressão linear
+    constante = 1   # Essa varrável indica a necessidade de separar em mais constantes de tempo, caso 0 sim, caso 1 não
+
+    def __init__(self, lista):
+        self.input_lista = lista
+
+    # Plot Qt x Qt+1 e regressao linear
+    def regreLinear(self, lista):
+        lista = np.asarray(lista)
+        x = lista[:, np.newaxis]
+        self.coefAngular, _, _, _ = np.linalg.lstsq(x[:len(x) - 1], lista[1:len(lista)], rcond=None)
+        
+        #Plot dos dados
+        plt.plot(lista[:len(lista) - 1], lista[1:len(lista)], 'o', label = "Qt x Qt+1")
+        plt.legend()
+        plt.plot(lista[:len(lista) - 1], self.coefAngular*np.array(lista[:len(lista) - 1 ]), 'r', label = 'Ajuste Linear', linewidth = 0.5)
+        plt.legend()
+        plt.title("Ajuste Linear")
+        plt.xlabel("Vazão")
+        plt.ylabel("Vazao + 1")
+        return self.coefAngular
+    
+    def separaK(self):
+        if (self.constante == 1):
+            x = plt.ginput(1, show_clicks = True)       
+            self.lista1 = []
+            self.lista2 = []
+            for i in range(len(self.input_lista)):
+                if (self.input_lista[i] > int(x[0][0])):
+                    self.lista1.append(self.input_lista[i])
+                else:
+                    self.lista2.append(self.input_lista[i])
+
+            plt.figure(10)
+            self.K1 = self.regreLinear(self.lista1)
+            plt.figure(11)
+            self.K2 = self.regreLinear(self.lista2)
+
+            self.Ks.append(self.K1)
+            self.Ks.append(self.K2)
+        else:
+            self.Ks.append(K)
+        print(self.Ks)  
+
+class filtroAR_CEPEL:
+    '''
+    A classe filtroAR realiza a filtragem auto regressiva de ordem 1
+    
+    '''  
+
+    def __init__(self, ano, posto, deltaT, dados, listaPosto):
+        self.input_ano       = int(ano)
+        self.input_posto     = str(posto)
+        self.input_deltaT    = 1
+        self.input_database  = dados
+        self.input_postos    = listaPosto
+        self.yn1AR1          = [] #Componente lenta
+        self.yn2AR1          = [] #Comoponente componente intermediaria./rapida
+
+        # Instanciação de um novo objeto vazão
+        self.vazao = dadosArq(self.input_ano, self.input_posto, self.input_deltaT, self.input_database, self.input_postos)
+        self.vazao.vazoesDia_CEPEL()
+        self.yn        = self.vazao.listaVazao # Vazão total
+        self.listaData = self.vazao.listaData  # Lista Data
+        self.yn2       = []
+
+        # instanciação do objeto ajuste linear
+        self.ajuste = AjusteLinear(self.yn)
+        self.ajuste.regreLinear(self.yn)
+        self.ajuste.separaK()
+
+    def filtroAR1(self):
+        if (len(self.ajuste.Ks) > 1):
+            # Primeiro filtra o sinal yn com K1
+            T1 = float(abs(1/(np.log(self.ajuste.Ks[0])))) #Constante para Yn1
+            T2 = float(abs(1/(np.log(self.ajuste.Ks[1])))) #Constante para Yn2
+            print(T1)
+            print(T2)
+            alpha1 = 0.98 #Constante para Yn1
+            alpha2 = 0.97 #Constante para Yn2
+            deltaT = 1 #Intervalo de discretização
+            for i in range(len(self.yn)):
+                try:
+                    if i == 0:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i]
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                    else:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                except IndexError:
+                    sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                    self.yn1AR1.insert(i, sinalFiltradoK1)
+                sinalYn2 = self.yn[i] - self.yn1AR1[i]
+                self.yn2.insert(i, sinalYn2)
+                if (sinalYn2 <= 0):
+                    print("Diminua o Alpha1!")
+                    break
+            for i in range(len(self.yn2)):
+                try:
+                    if i == 0:
+                        sinalFiltradoK2 = (deltaT/T2)*self.yn2[i]
+                        self.yn2AR1.insert(i, sinalFiltradoK2)
+                    else:
+                        sinalFiltradoK2 = (deltaT/T2)*self.yn2[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
+                        self.yn2AR1.insert(i, sinalFiltradoK2)
+                except IndexError:
+                    sinalFiltradoK2 = (deltaT/T2)*self.yn2[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
+                    self.yn2AR1.insert(i, sinalFiltradoK2)
+                sinalYn3 = self.yn2[i] - self.yn2AR1[i]
+                if (sinalYn3 <= 0):
+                    print("Diminua o Alpha2!")
+                    break
+        else:
+            T = float(abs(1/(np.log(self.ajuste.Ks[0]))))
+            alpha = 0.9
+            deltaT = 1
+            for i in range(len(self.yn)):
+                try:
+                    if i == 0:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i]
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                    else:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                except IndexError:
+                    sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                    self.yn1AR1.insert(i, sinalFiltradoK1)
+                sinalYn2 = self.yn[i] - self.yn1AR1[i]
+                if (sinalYn2 <= 0):
+                    print("Diminua o Alpha1!")
+                    break
+
+        plt.figure(0)
+        plt.title("Componente Lenta para o Posto: ...  no ano de " + str(self.input_ano))
+        plt.plot(self.listaData, self.yn, linewidth = 0.5)
+        plt.plot(self.listaData, self.yn1AR1, 'r--', linewidth = 0.5)
+
+        plt.figure(0)
+        plt.title("Componente Intermediaria para o Posto: ...  no ano de " + str(self.input_ano))
+        plt.plot(self.listaData, self.yn2AR1, 'g-.', linewidth = 0.5)
+
+class filtroAR_ANA:
+    '''
+    A classe filtroAR realiza a filtragem auto regressiva de ordem 1
+    
+    '''  
+
+    def __init__(self, ano, deltaT, dados):
+        self.input_ano       = int(ano)
+        self.input_deltaT    = 1
+        self.input_database  = dados
+        self.yn1AR1          = [] #Componente lenta
+        self.yn2AR1          = [] #Comoponente componente intermediaria./rapida
+
+        # Instanciação de um novo objeto vazão
+        self.vazaoFiltro = dadosArq(self.input_ano, 0, self.input_deltaT, self.input_database, [])
+        self.vazaoFiltro.vazoesDia_ANA()
+        self.yn        = self.vazaoFiltro.listaVazao # Vazão total
+        self.listaData = self.vazaoFiltro.listaData  # Lista Data
+        self.yn2       = []
+
+        # instanciação do objeto ajuste linear
+        self.ajuste = AjusteLinear(self.yn)
+        self.ajuste.regreLinear(self.yn)
+        self.ajuste.separaK()
+
+    def filtroAR1(self):
+        if (len(self.ajuste.Ks) > 1):
+            # Primeiro filtra o sinal yn com K1
+            T1 = float(abs(1/(np.log(self.ajuste.Ks[0])))) #Constante para Yn1
+            T2 = float(abs(1/(np.log(self.ajuste.Ks[1])))) #Constante para Yn2
+            print(T1)
+            print(T2)
+            alpha1 = 0.5 #Constante para Yn1
+            alpha2 = 0.5 #Constante para Yn2
+            deltaT = 1 #Intervalo de discretização
+            for i in range(len(self.yn)):
+                try:
+                    if i == 0:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i]
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                    else:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                except IndexError:
+                    sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                    self.yn1AR1.insert(i, sinalFiltradoK1)
+                sinalYn2 = self.yn[i] - self.yn1AR1[i]
+                self.yn2.insert(i, sinalYn2)
+                if (sinalYn2 <= 0):
+                    print("Diminua o Alpha1!")
+                    break
+            for i in range(len(self.yn2)):
+                try:
+                    if i == 0:
+                        sinalFiltradoK2 = (deltaT/T2)*self.yn2[i]
+                        self.yn2AR1.insert(i, sinalFiltradoK2)
+                    else:
+                        sinalFiltradoK2 = (deltaT/T2)*self.yn2[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
+                        self.yn2AR1.insert(i, sinalFiltradoK2)
+                except IndexError:
+                    sinalFiltradoK2 = (deltaT/T2)*self.yn2[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
+                    self.yn2AR1.insert(i, sinalFiltradoK2)
+                sinalYn3 = self.yn2[i] - self.yn2AR1[i]
+                if (sinalYn3 <= 0):
+                    print("Diminua o Alpha2!")
+                    break
+        else:
+            T = float(abs(1/(np.log(self.ajuste.Ks[0]))))
+            alpha = 0.9
+            deltaT = 1
+            for i in range(len(self.yn)):
+                try:
+                    if i == 0:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i]
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                    else:
+                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                        self.yn1AR1.insert(i, sinalFiltradoK1)
+                except IndexError:
+                    sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                    self.yn1AR1.insert(i, sinalFiltradoK1)
+                sinalYn2 = self.yn[i] - self.yn1AR1[i]
+                if (sinalYn2 <= 0):
+                    print("Diminua o Alpha1!")
+                    break
+
+        plt.figure(0)
+        plt.title("Componente Lenta para o Posto: ...  no ano de " + str(self.input_ano))
+        plt.plot(self.listaData, self.yn, linewidth = 0.5)
+        plt.plot(self.listaData, self.yn1AR1, 'r--', linewidth = 0.5)
+
+        plt.figure(0)
+        plt.title("Componente Intermediaria para o Posto: ...  no ano de " + str(self.input_ano))
+        plt.plot(self.listaData, self.yn2AR1, 'g-.', linewidth = 0.5)

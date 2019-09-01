@@ -10,7 +10,6 @@ O código também faz a separação de constantes por meio da função ginput() 
 '''
 
 ''' Importação de bibliotecas utilizadas '''
-#import analiseRec_ANA
 from matplotlib import pyplot as plt
 import numpy as np
 
