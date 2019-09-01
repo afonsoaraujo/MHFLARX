@@ -581,16 +581,16 @@ class AjusteLinear:
         plt.ylabel("Vazao + 1")
         return self.coefAngular
     
-    def separaK(self):
+    def separaK(self, lista):
         if (self.constante == 1):
             x = plt.ginput(1, show_clicks = True)       
             self.lista1 = []
             self.lista2 = []
-            for i in range(len(self.input_lista)):
-                if (self.input_lista[i] > int(x[0][0])):
-                    self.lista1.append(self.input_lista[i])
+            for i in range(len(lista)):
+                if (lista[i] > int(x[0][0])):
+                    self.lista1.append(lista[i])
                 else:
-                    self.lista2.append(self.input_lista[i])
+                    self.lista2.append(lista[i])
 
             plt.figure(10)
             self.K1 = self.regreLinear(self.lista1)
@@ -600,7 +600,8 @@ class AjusteLinear:
             self.Ks.append(self.K1)
             self.Ks.append(self.K2)
         else:
-            self.Ks.append(K)
+            self.K = self.regreLinear(lista)
+            self.Ks.append(self.K)
         print(self.Ks)  
 
 class filtroAR_CEPEL:
@@ -628,7 +629,7 @@ class filtroAR_CEPEL:
         # instanciação do objeto ajuste linear
         self.ajuste = AjusteLinear(self.yn)
         self.ajuste.regreLinear(self.yn)
-        self.ajuste.separaK()
+        self.ajuste.separaK(self.yn)
 
     def filtroAR1(self):
         if (len(self.ajuste.Ks) > 1):
@@ -678,13 +679,13 @@ class filtroAR_CEPEL:
             for i in range(len(self.yn)):
                 try:
                     if i == 0:
-                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i]
+                        sinalFiltradoK1 = (deltaT/T)*self.yn[i]
                         self.yn1AR1.insert(i, sinalFiltradoK1)
                     else:
-                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                        sinalFiltradoK1 = (deltaT/T)*self.yn[i] + alpha*((1 - (deltaT/T))*self.yn1AR1[i-1])
                         self.yn1AR1.insert(i, sinalFiltradoK1)
                 except IndexError:
-                    sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                    sinalFiltradoK1 = (deltaT/T)*self.yn[i] + alpha*((1 - (deltaT/T))*self.yn1AR1[i-1])
                     self.yn1AR1.insert(i, sinalFiltradoK1)
                 sinalYn2 = self.yn[i] - self.yn1AR1[i]
                 if (sinalYn2 <= 0):
@@ -723,7 +724,7 @@ class filtroAR_ANA:
         # instanciação do objeto ajuste linear
         self.ajuste = AjusteLinear(self.yn)
         self.ajuste.regreLinear(self.yn)
-        self.ajuste.separaK()
+        self.ajuste.separaK(self.yn)
 
     def filtroAR1(self):
         if (len(self.ajuste.Ks) > 1):
@@ -773,13 +774,13 @@ class filtroAR_ANA:
             for i in range(len(self.yn)):
                 try:
                     if i == 0:
-                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i]
+                        sinalFiltradoK1 = (deltaT/T)*self.yn[i]
                         self.yn1AR1.insert(i, sinalFiltradoK1)
                     else:
-                        sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                        sinalFiltradoK1 = (deltaT/T)*self.yn[i] + alpha*((1 - (deltaT/T))*self.yn1AR1[i-1])
                         self.yn1AR1.insert(i, sinalFiltradoK1)
                 except IndexError:
-                    sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
+                    sinalFiltradoK1 = (deltaT/T)*self.yn[i] + alpha*((1 - (deltaT/T))*self.yn1AR1[i-1])
                     self.yn1AR1.insert(i, sinalFiltradoK1)
                 sinalYn2 = self.yn[i] - self.yn1AR1[i]
                 if (sinalYn2 <= 0):
