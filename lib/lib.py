@@ -725,6 +725,7 @@ class filtroAR_ANA:
         self.ajuste = AjusteLinear(self.yn)
         self.ajuste.regreLinear(self.yn)
         self.ajuste.separaK(self.yn)
+        
 
     def filtroAR1(self):
         if (len(self.ajuste.Ks) > 1):
