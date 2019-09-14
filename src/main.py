@@ -44,8 +44,7 @@ ana.plotRecTotal(0)
 plt.plot(ana.dados.listaVazao)
 
 plt.figure(2)
-filtro = filtroAR_ANA(1946, 1, database)
-print(len(filtro.yn))
-#filtro.filtroAR1()
+filtro = filtroAR_ANA(1956, 1, database)
+filtro.filtroAR1()
 
 plt.show()

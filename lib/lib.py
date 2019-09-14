@@ -36,8 +36,8 @@ class Data:
 
     def __init__(self, data):
         self.ano = int(data[6:10])
-        self.mes = int(data[0:2])
-        self.dia = int(data[3:5])
+        self.mes = int(data[3:5])
+        self.dia = int(data[0:2])
 
     def anoBissexto(self):
         if ((self.ano % 4 == 0 and self.ano % 100 != 0) or self.ano % 400 == 0):
@@ -190,8 +190,6 @@ class dadosArq:
                         self.listaVazao.append(x)
                     else:
                         self.listaVazao.append(float(x))
-                        print(j)
-                        print(len(self.listaVazao))
         for j in range(self.dados.__len__()): 
             data_arq2  = self.dados[j][2]
             data2      = Data(data_arq2)  # Instanciação do objeto Data
