@@ -47,4 +47,11 @@ plt.figure(2)
 filtro = filtroAR_ANA(1956, 1, database)
 filtro.filtroAR1()
 
+autocorrelacao = autoCorrelacao(filtro.yn1AR1)
+autoCorrelacao2 = autoCorrelacao(filtro.yn2AR1)
+autocorrelacao.autoCor()
+autoCorrelacao2.autoCor()
+autocorrelacao.autoCorParcial()
+autoCorrelacao2.autoCorParcial()
+
 plt.show()

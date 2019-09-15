@@ -794,3 +794,22 @@ class filtroAR_ANA:
         plt.figure(0)
         plt.title("Componente Intermediaria para o Posto: ...  no ano de " + str(self.input_ano))
         plt.plot(self.listaData, self.yn2AR1, 'g-.', linewidth = 0.5)
+
+class autoCorrelacao:
+    '''
+    A classe autoCorrelacao realiza a aplicação das funções de autocorrelacao
+    e autocorrelação parcial.
+    
+    '''
+    def __init__(self, listaVazao):
+        self.listavazao = listaVazao
+
+    def autoCorParcial(self):
+        sm.graphics.tsa.plot_pacf(self.listavazao, lags = 10, use_vlines = False, linestyle = '-')
+        pautoCoef = sm.tsa.stattools.pacf(self.listavazao, nlags = 10)
+        print(pautoCoef)
+    
+    def autoCor(self):
+        sm.graphics.tsa.plot_acf(self.listavazao, lags = 50, use_vlines = False, linestyle = '-')
+        autoCoef = sm.tsa.stattools.acf(self.listavazao, nlags = 5)
+        print(autoCoef)
