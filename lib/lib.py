@@ -7,6 +7,45 @@ import numpy as np
 import csv
 import statsmodels.api as sm
 
+class loadData:
+    '''
+    Essa biblioteca é a capaz de realizar a abertuda do arquivo utilizado
+
+    '''
+    # Definições de variáveis de armazenamento de dados globais
+    
+
+    def __init__(self, nomeArquivo, arquivoParametros, diretorioArquivos):
+        self.nomeArquivo = nomeArquivo
+        self.arquivoParametros = arquivoParametros
+        self.diretorioArquivos = diretorioArquivos
+        self.lista_posto     = []    
+        self.nomes_posto     = []
+    
+    def openAna(self):
+        try:
+            # Leitura dos arquivos e disposição correta em forma matricial para análise
+            with open(self.diretorioArquivos + self.nomeArquivo, "r") as csvfile:
+                self.database = np.genfromtxt(csvfile, dtype = str, delimiter = ';', skip_header = 1)
+        
+        except FileNotFoundError:
+            print("Arquivo não encontrado! Diretorio incorreto!")
+    
+    def openCepel(self):
+        try:
+            # Leitura dos arquivos e disposição correta em forma matricial para análise
+            with open(self.diretorioArquivos + self.nomeArquivo, "r") as csvfile:
+                self.database = np.genfromtxt(csvfile, dtype = str, delimiter = ',', skip_header = 0)
+
+            with open(self.diretorioArquivos + self.arquivoParametros, "r") as csvfile:
+                self.parametros = np.genfromtxt(csvfile, dtype = str, delimiter = ',', skip_header = 0)
+
+            for p in range(len(self.database[0])-1):
+                self.lista_posto.append(str(self.database[0][p+1]))
+        
+        except FileNotFoundError:
+            print("Arquivo não encontrado! Diretorio incorreto!")
+
 class Data:
     
     '''
