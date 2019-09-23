@@ -845,10 +845,35 @@ class autoCorrelacao:
 
     def autoCorParcial(self):
         sm.graphics.tsa.plot_pacf(self.listavazao, lags = 10, use_vlines = False, linestyle = '-')
-        pautoCoef = sm.tsa.stattools.pacf(self.listavazao, nlags = 10)
-        print(pautoCoef)
+        self.pautoCoef = sm.tsa.stattools.pacf(self.listavazao, nlags = 10)
+        
     
     def autoCor(self):
         sm.graphics.tsa.plot_acf(self.listavazao, lags = 50, use_vlines = False, linestyle = '-')
-        autoCoef = sm.tsa.stattools.acf(self.listavazao, nlags = 5)
-        print(autoCoef)
+        self.autoCoef = sm.tsa.stattools.acf(self.listavazao, nlags = 5)
+        
+
+class precipitacao:
+    '''
+    Classe teste da deconvolução para obtenção da precipitação
+    '''
+    def __init__(self, listaVazao, listaData, coefPartialCorrec):
+        self.vazao = listaVazao
+        self.data = listaData
+        self.coef = coefPartialCorrec
+        self.precipitacao = []
+    
+    def precipitacaoEfetiva(self):
+        for i in range(len(self.vazao)):
+            if i==0:
+                valor = self.vazao[i]
+                self.precipitacao.insert(i, valor)
+            elif i==1:
+                valor = self.vazao[i] - ((self.coef[0])*(self.vazao[i-1]))
+                self.precipitacao.insert(i, valor)
+            else:
+                valor = self.vazao[i] - ((self.coef[0])*(self.vazao[i-1])) - ((self.coef[1])*(self.vazao[i-2]))
+                self.precipitacao.insert(i, valor)
+
+    def plotPrecipitacao(self):
+        plt.bar(self.data, self.precipitacao)

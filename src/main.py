@@ -35,4 +35,15 @@ autoCorrelacao2.autoCor()
 autocorrelacao.autoCorParcial()
 autoCorrelacao2.autoCorParcial()
 
+precipitacao1 = precipitacao(ana.dados.listaVazao, ana.dados.listaData, autocorrelacao.pautoCoef)
+precipitacao2 = precipitacao(ana.dados.listaVazao, ana.dados.listaData, autoCorrelacao2.pautoCoef)
+
+precipitacao1.precipitacaoEfetiva()
+precipitacao2.precipitacaoEfetiva()
+
+plt.figure(20)
+precipitacao1.plotPrecipitacao()
+plt.figure(30)
+precipitacao2.plotPrecipitacao()
+
 plt.show()
