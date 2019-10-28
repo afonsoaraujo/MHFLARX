@@ -571,20 +571,21 @@ class analiseRec_ANA:
         plt.ylabel("Vazão")
     
     def analise(self):
-        self.dados = dadosArq(self.input_ano, 0, self.input_deltaT, self.input_database, [])
-        self.dados.vazoesDia_ANA()
+        for q in range(self.input_deltaT):
+            self.dados = dadosArq(self.input_ano + q, 0, self.input_deltaT, self.input_database, [])
+            self.dados.vazoesDia_ANA()
 
-        self.tiRec     = 2     # tempo mínimo para inicio de uma recessão (DEPENDE DE UMA DETERMINADA BACIA)
-        self.tfRec     = 2     # tempo minimo anterior do fim de uma recessão (DEPENDE DE UMA DETERMINADA BACIA) [VALOR MÍNIMO: 2]
-        self.varVazao  = 1     # Variação minima de vazao entre recessão
-        ''' Definição de variaveis e listas de rotinas '''
-        self.derivada        = []    # Lista da derivada da vazao do ano q
-                
-        ''' Funções principais '''
-        self.derivada = np.gradient(self.dados.listaVazao)    # Calcula a derivada da vazão
-        self.filtroRec(self.tiRec, self.varVazao)    # Chama a função que filtra os dados da vazao anual
-        self.matrizRecessao.append(self.vetorRecDias)   # Adiciona os dias de recessão ao vetor geral de recessão
-        self.matrizRecessao.append(self.vetorRecVazao)    # Adiciona a vazão da recessão ao vetor geral de recessão
+            self.tiRec     = 2     # tempo mínimo para inicio de uma recessão (DEPENDE DE UMA DETERMINADA BACIA)
+            self.tfRec     = 4     # tempo minimo anterior do fim de uma recessão (DEPENDE DE UMA DETERMINADA BACIA) [VALOR MÍNIMO: 2]
+            self.varVazao  = 1     # Variação minima de vazao entre recessão
+            ''' Definição de variaveis e listas de rotinas '''
+            self.derivada        = []    # Lista da derivada da vazao do ano q
+                    
+            ''' Funções principais '''
+            self.derivada = np.gradient(self.dados.listaVazao)    # Calcula a derivada da vazão
+            self.filtroRec(self.tiRec, self.varVazao)    # Chama a função que filtra os dados da vazao anual
+            self.matrizRecessao.append(self.vetorRecDias)   # Adiciona os dias de recessão ao vetor geral de recessão
+            self.matrizRecessao.append(self.vetorRecVazao)    # Adiciona a vazão da recessão ao vetor geral de recessão
 
 class AjusteLinear:
     '''
@@ -763,17 +764,20 @@ class filtroAR_ANA:
         self.ajuste = AjusteLinear(self.listavazao)
         self.ajuste.regreLinear(self.listavazao)
         self.ajuste.separaK(self.listavazao)
+        #Ajuste já feito
         
 
     def filtroAR1(self):
         if (len(self.ajuste.Ks) > 1):
             # Primeiro filtra o sinal yn com K1
-            T1 = float(abs(1/(np.log(self.ajuste.Ks[0])))) #Constante para Yn1
-            T2 = float(abs(1/(np.log(self.ajuste.Ks[1])))) #Constante para Yn2
+           # T1 = float(abs(1/(np.log(self.ajuste.Ks[0])))) #Constante para Yn1
+           # T2 = float(abs(1/(np.log(self.ajuste.Ks[1])))) #Constante para Yn2
+            T1 = float(abs(1/(np.log(0.9749)))) #Constante para Yn1
+            T2 = float(abs(1/(np.log(0.8316)))) #Constante para Yn2
             print(T1)
             print(T2)
-            alpha1 = 0.8 #Constante para Yn1
-            alpha2 = 0.7 #Constante para Yn2
+            alpha1 = 0.93 #Constante para Yn1
+            alpha2 = 0.83 #Constante para Yn2
             deltaT = 1 #Intervalo de discretização
             for i in range(len(self.yn)):
                 try:
@@ -787,22 +791,23 @@ class filtroAR_ANA:
                     sinalFiltradoK1 = (deltaT/T1)*self.yn[i] + alpha1*((1 - (deltaT/T1))*self.yn1AR1[i-1])
                     self.yn1AR1.insert(i, sinalFiltradoK1)
                 sinalYn2 = self.yn[i] - self.yn1AR1[i]
-                self.yn2.insert(i, sinalYn2)
                 if (sinalYn2 <= 0):
                     print("Diminua o Alpha1!")
                     break
+                else:
+                    self.yn2.insert(i, sinalYn2)
             for i in range(len(self.yn2)):
                 try:
                     if i == 0:
-                        sinalFiltradoK2 = (deltaT/T2)*self.yn2[i]
+                        sinalFiltradoK2 = (deltaT/T2)*self.yn[i]
                         self.yn2AR1.insert(i, sinalFiltradoK2)
                     else:
-                        sinalFiltradoK2 = (deltaT/T2)*self.yn2[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
+                        sinalFiltradoK2 = (deltaT/T2)*self.yn[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
                         self.yn2AR1.insert(i, sinalFiltradoK2)
                 except IndexError:
-                    sinalFiltradoK2 = (deltaT/T2)*self.yn2[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
+                    sinalFiltradoK2 = (deltaT/T2)*self.yn[i] + alpha2*((1 - (deltaT/T2))*self.yn2AR1[i-1])
                     self.yn2AR1.insert(i, sinalFiltradoK2)
-                sinalYn3 = self.yn2[i] - self.yn2AR1[i]
+                sinalYn3 = self.yn[i] - self.yn2AR1[i]
                 if (sinalYn3 <= 0):
                     print("Diminua o Alpha2!")
                     break
@@ -832,7 +837,7 @@ class filtroAR_ANA:
         plt.plot(self.listaData, self.yn1AR1, 'r--', linewidth = 0.5)
 
         plt.figure(0)
-        plt.title("Componente Intermediaria para o Posto: ...  no ano de " + str(self.input_ano))
+        plt.title("Componente Intermediária para o Posto: ...  no ano de " + str(self.input_ano))
         plt.plot(self.listaData, self.yn2AR1, 'g-.', linewidth = 0.5)
 
 class autoCorrelacao:
@@ -869,10 +874,13 @@ class precipitacao:
                 valor = self.vazao[i]
                 self.precipitacao.insert(i, valor)
             elif i==1:
-                valor = self.vazao[i] - ((self.coef[0])*(self.vazao[i-1]))
+                valor = self.vazao[i] - ((self.coef[1])*(self.vazao[i-1]))
                 self.precipitacao.insert(i, valor)
-            else:
-                valor = self.vazao[i] - ((self.coef[0])*(self.vazao[i-1])) - ((self.coef[1])*(self.vazao[i-2]))
+            elif i==2:
+                valor = self.vazao[i] - ((self.coef[1])*(self.vazao[i-1])) - ((self.coef[2])*(self.vazao[i-2]))
+                self.precipitacao.insert(i, valor)
+            else:    
+                valor = self.vazao[i] - ((self.coef[1])*(self.vazao[i-1])) - ((self.coef[2])*(self.vazao[i-2])) - ((self.coef[3])*(self.vazao[i-3]))
                 self.precipitacao.insert(i, valor)
 
     def plotPrecipitacao(self):

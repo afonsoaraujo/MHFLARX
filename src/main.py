@@ -17,15 +17,11 @@ arqAna = loadData(nomeArq, ArqParametros, diretorioDados)
 arqAna.openAna()
 
 # MAIN PRINCIPAL
-ana = analiseRec_ANA(1946, 1, arqAna.database)
+ana = analiseRec_ANA(1980, 20, arqAna.database)
 ana.analise()
 
-plt.figure(1)
-ana.plotRecTotal(0)
-plt.plot(ana.dados.listaVazao)
-
 plt.figure(2)
-filtro = filtroAR_ANA(1956, 1, arqAna.database)
+filtro = filtroAR_ANA(1983, arqAna.database, ana.recVazao)
 filtro.filtroAR1()
 
 autocorrelacao = autoCorrelacao(filtro.yn1AR1)
