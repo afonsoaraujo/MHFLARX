@@ -448,12 +448,13 @@ class analiseRec_ANA:
     matrizRecessao  = []    # Matriz com os vetores de recessão do ano escolhido
     vetorRecDias    = []    # Lista com o vetor de dias para recessão, para todos os n anos agrupados
     vetorRecVazao   = []    # Lista com o vetor de vazão para recessão, para todos os n anos agrupados
-    recVazao        = []    # lista com todas as recessões para o calculo de autocorrelação
+    
 
     def __init__(self, ano, deltaT, database):
         self.input_ano        = int(ano)
         self.input_deltaT     = int(deltaT)
         self.input_database   = database
+        self.recVazao         = []    # lista com todas as recessões para o calculo de autocorrelação
 
     def filtroRec(self, tiRec, varVazao):
         d = 0
@@ -574,7 +575,7 @@ class analiseRec_ANA:
         self.dados.vazoesDia_ANA()
 
         self.tiRec     = 2     # tempo mínimo para inicio de uma recessão (DEPENDE DE UMA DETERMINADA BACIA)
-        self.tfRec     = 4     # tempo minimo anterior do fim de uma recessão (DEPENDE DE UMA DETERMINADA BACIA) [VALOR MÍNIMO: 2]
+        self.tfRec     = 2     # tempo minimo anterior do fim de uma recessão (DEPENDE DE UMA DETERMINADA BACIA) [VALOR MÍNIMO: 2]
         self.varVazao  = 1     # Variação minima de vazao entre recessão
         ''' Definição de variaveis e listas de rotinas '''
         self.derivada        = []    # Lista da derivada da vazao do ano q
@@ -611,7 +612,7 @@ class AjusteLinear:
         #Plot dos dados
         plt.plot(lista[:len(lista) - 1], lista[1:len(lista)], 'o', label = "Qt x Qt+1")
         plt.legend()
-        plt.plot(lista[:len(lista) - 1], self.coefAngular*np.array(lista[:len(lista) - 1 ]), 'r', label = 'Ajuste Linear', linewidth = 0.5)
+        #plt.plot(lista[:len(lista) - 1], self.coefAngular*np.array(lista[:len(lista) - 1 ]), 'r', label = 'Ajuste Linear', linewidth = 0.5)
         plt.legend()
         plt.title("Ajuste Linear")
         plt.xlabel("Vazão")
@@ -744,24 +745,24 @@ class filtroAR_ANA:
     
     '''  
 
-    def __init__(self, ano, deltaT, dados):
+    def __init__(self, ano, dados, listaVazao):
         self.input_ano       = int(ano)
-        self.input_deltaT    = 1
         self.input_database  = dados
+        self.listavazao      = listaVazao
         self.yn1AR1          = [] #Componente lenta
         self.yn2AR1          = [] #Comoponente componente intermediaria./rapida
 
         # Instanciação de um novo objeto vazão
-        self.vazaoFiltro = dadosArq(self.input_ano, 0, self.input_deltaT, self.input_database, [])
+        self.vazaoFiltro = dadosArq(self.input_ano, 0, 1, self.input_database, [])
         self.vazaoFiltro.vazoesDia_ANA()
         self.yn        = self.vazaoFiltro.listaVazao # Vazão total
         self.listaData = self.vazaoFiltro.listaData  # Lista Data
         self.yn2       = []
 
         # instanciação do objeto ajuste linear
-        self.ajuste = AjusteLinear(self.yn)
-        self.ajuste.regreLinear(self.yn)
-        self.ajuste.separaK(self.yn)
+        self.ajuste = AjusteLinear(self.listavazao)
+        self.ajuste.regreLinear(self.listavazao)
+        self.ajuste.separaK(self.listavazao)
         
 
     def filtroAR1(self):
@@ -771,8 +772,8 @@ class filtroAR_ANA:
             T2 = float(abs(1/(np.log(self.ajuste.Ks[1])))) #Constante para Yn2
             print(T1)
             print(T2)
-            alpha1 = 0.5 #Constante para Yn1
-            alpha2 = 0.5 #Constante para Yn2
+            alpha1 = 0.8 #Constante para Yn1
+            alpha2 = 0.7 #Constante para Yn2
             deltaT = 1 #Intervalo de discretização
             for i in range(len(self.yn)):
                 try:
@@ -852,7 +853,6 @@ class autoCorrelacao:
         sm.graphics.tsa.plot_acf(self.listavazao, lags = 50, use_vlines = False, linestyle = '-')
         self.autoCoef = sm.tsa.stattools.acf(self.listavazao, nlags = 5)
         
-
 class precipitacao:
     '''
     Classe teste da deconvolução para obtenção da precipitação
